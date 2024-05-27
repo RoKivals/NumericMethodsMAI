@@ -3,6 +3,7 @@ import math
 from typing import List
 
 
+
 class Matrix:
     def __init__(self, rows: int, cols: int, default_value=0) -> None:
         self.data = [[default_value for _ in range(cols)] for _ in range(rows)]
@@ -23,8 +24,8 @@ class Matrix:
 
     def __getitem__(self, pos):
         if len(pos) == 2:
-                row, col = pos
-                return self.data[row][col]
+            row, col = pos
+            return self.data[row][col]
 
         if len(pos) == 1:
             row = pos[0]
@@ -40,14 +41,25 @@ class Matrix:
 
         self.data[row][col] = value
 
-    def __len__(self):
+    def _size(self):
         return (self.rows, self.cols)
-    
-    def __sub__(self, other):
-        if self.size != other.size:
+
+    def __add__(self, other):
+        if self._size() != other._size():
             raise ValueError(
                 f"Matrices have different sizes: {self.size}!= {other.size}")
-        
+
+        result = Matrix(self.rows, self.cols)
+        for row in range(self.rows):
+            for col in range(self.cols):
+                result[row, col] = self[row, col] + other[row, col]
+        return result
+
+    def __sub__(self, other):
+        if self._size() != other._size():
+            raise ValueError(
+                f"Matrices have different sizes: {self.size}!= {other.size}")
+
         result = Matrix(self.rows, self.cols)
         for row in range(self.rows):
             for col in range(self.cols):
@@ -56,18 +68,18 @@ class Matrix:
         return result
 
     def __matmul__(self, other):
-        if self.cols!= other.rows:
+        if self.cols != other.rows:
             raise ValueError(
                 f"Matrices have different sizes: {self.cols}!= {other.rows}")
-        
-        #TODO: optimize
+
         result = Matrix(self.rows, other.cols)
         for row in range(result.rows):
             for col in range(result.cols):
                 elem = 0
                 for k in range(self.cols):
-                    summa += self[row, k] * other[k, col]
-                result[row, col] = summa
+                    elem += self[row, k] * other[k, col]
+                result[row, col] = elem
+        return result
 
     def _is_vector(self):
         return self.rows == 1
@@ -87,7 +99,7 @@ class Matrix:
             self.data[row].append(elem)
 
     def transpose(self):
-        result = Matrix(self.rows, self.cols)
+        result = Matrix(self.cols, self.rows)
         for row in range(self.cols):
             for col in range(self.rows):
                 result[row, col] = self[col, row]
@@ -108,8 +120,12 @@ class QuadMatrix(Matrix):
         super().__init__(size, size, default_value)
         self.size = size
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.size
+
+    @property
+    def _size(self):
+        return (self.rows, self.cols)
 
     def change_diag(self, value):
         for order in range(self.size):
