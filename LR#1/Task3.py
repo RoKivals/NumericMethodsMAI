@@ -93,8 +93,6 @@ def main():
     x, cnt_iterative = Iterative_Solution_of_SLE(A, b_coef, eps)
     print('Solution:', x)
     print(f'Количество итераций: {cnt_iterative}')
-    
-    
 
     print('Метод итерации (Сейдел):')
     x_seidel, cnt_seidel = Seidel_Solution_of_SLE(A, b_coef, eps)
